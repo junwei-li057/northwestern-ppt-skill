@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+work/
+.superpowers/
+*_northwestern.pptx
+northwestern-ppt/tests/_out/
