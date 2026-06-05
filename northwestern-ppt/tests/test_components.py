@@ -51,3 +51,19 @@ def test_bullets(template_path):
     assert len(body) == 1                      # one body textbox holding all bullets
     for b in page["bullets"]:
         assert b in body[0]
+
+
+def test_card_row_three_cards_rotating_accents(template_path):
+    prs = fresh(template_path)
+    page = {"type": "card_row", "eyebrow": "METRICS", "title": "Three scores",
+            "cards": [{"title": "A", "desc": "alpha"},
+                      {"title": "B", "desc": "beta"},
+                      {"title": "C", "desc": "gamma"}]}
+    slide = components.render_card_row(prs, page)
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
+    cards = [s for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE]
+    fills = {c.fill.fore_color.rgb for c in cards}
+    assert fills == {ns.hex_to_rgb(ns.ACCENTS[i][1]) for i in range(3)}
+    joined = " | ".join(texts(slide))
+    for word in ["A", "alpha", "B", "beta", "C", "gamma"]:
+        assert word in joined

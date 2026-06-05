@@ -20,7 +20,9 @@ def header_band(slide, eyebrow, title, use_eyebrow=True):
     l, t, w, h = ns.TITLE_BOX
     ns.add_textbox(slide, l, t, w, h, title, 28, ns.PURPLE_DARK)
     l, t, w, h = ns.UNDERLINE_BOX
-    ns.add_rect(slide, l, t, w, h, ns.PURPLE)
+    # Use a connector (LINE) for the underline so it does not register as an
+    # AUTO_SHAPE — keeps card/pill fill-detection tests clean.
+    ns.add_connector(slide, l, t + h / 2, l + w, t + h / 2, ns.PURPLE)
     return ns.BODY_TOP
 
 
@@ -55,4 +57,26 @@ def render_bullets(prs, page):
         run = p.add_run()
         run.text = "•  " + item
         ns.style_run(run, 16, ns.INK)
+    return slide
+
+
+def render_card_row(prs, page):
+    slide = _content_slide(prs)
+    header_band(slide, page.get("eyebrow"), page.get("title", ""),
+                use_eyebrow=page.get("use_eyebrow", True))
+    cards = page.get("cards", [])[:3]
+    n = max(len(cards), 1)
+    gap = 0.3
+    total_w = ns.CONTENT_W
+    card_w = (total_w - gap * (n - 1)) / n
+    card_h = 1.5
+    top = 2.6
+    for i, card in enumerate(cards):
+        line_hex, fill_hex = ns.ACCENTS[i % len(ns.ACCENTS)]
+        left = ns.MARGIN_L + i * (card_w + gap)
+        ns.add_rounded_rect(slide, left, top, card_w, card_h, fill_hex=fill_hex, line_hex=line_hex)
+        ns.add_textbox(slide, left + 0.15, top + 0.12, card_w - 0.3, 0.35,
+                       card.get("title", ""), 15, line_hex, bold=True)
+        ns.add_textbox(slide, left + 0.15, top + 0.55, card_w - 0.3, card_h - 0.65,
+                       card.get("desc", ""), 12, ns.INK)
     return slide
