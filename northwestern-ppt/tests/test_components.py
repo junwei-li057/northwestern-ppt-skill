@@ -40,3 +40,14 @@ def test_header_band_returns_body_top(template_path):
     assert abs(body_top - ns.BODY_TOP) < 1e-6
     assert "INTRO" in " | ".join(texts(slide))
     assert "A title" in " | ".join(texts(slide))
+
+
+def test_bullets(template_path):
+    prs = fresh(template_path)
+    page = {"type": "bullets", "eyebrow": "METHOD", "title": "How it works",
+            "bullets": ["First point", "Second point", "Third point"]}
+    slide = components.render_bullets(prs, page)
+    body = [t for t in texts(slide) if "point" in t.lower()]
+    assert len(body) == 1                      # one body textbox holding all bullets
+    for b in page["bullets"]:
+        assert b in body[0]

@@ -39,3 +39,20 @@ def render_thanks(prs, page):
     ns.add_textbox(slide, 2.0, 2.4, 7.4, 1.0, page.get("title", "Thanks!"),
                    40, ns.PURPLE_DARK, bold=True)
     return slide
+
+
+def render_bullets(prs, page):
+    slide = _content_slide(prs)
+    top = header_band(slide, page.get("eyebrow"), page.get("title", ""),
+                      use_eyebrow=page.get("use_eyebrow", True))
+    box = slide.shapes.add_textbox(ns.Inches(ns.MARGIN_L), ns.Inches(top),
+                                   ns.Inches(ns.CONTENT_W), ns.Inches(ns.BODY_BOTTOM - top))
+    tf = box.text_frame
+    tf.word_wrap = True
+    for i, item in enumerate(page.get("bullets", [])):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.space_after = ns.Pt(8)
+        run = p.add_run()
+        run.text = "•  " + item
+        ns.style_run(run, 16, ns.INK)
+    return slide
