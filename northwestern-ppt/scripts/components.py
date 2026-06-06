@@ -20,9 +20,7 @@ def header_band(slide, eyebrow, title, use_eyebrow=True):
     l, t, w, h = ns.TITLE_BOX
     ns.add_textbox(slide, l, t, w, h, title, 28, ns.PURPLE_DARK)
     l, t, w, h = ns.UNDERLINE_BOX
-    # Use a connector (LINE) for the underline so it does not register as an
-    # AUTO_SHAPE — keeps card/pill fill-detection tests clean.
-    ns.add_connector(slide, l, t + h / 2, l + w, t + h / 2, ns.PURPLE)
+    ns.add_rect(slide, l, t, w, h, ns.PURPLE)
     return ns.BODY_TOP
 
 
@@ -79,4 +77,36 @@ def render_card_row(prs, page):
                        card.get("title", ""), 15, line_hex, bold=True)
         ns.add_textbox(slide, left + 0.15, top + 0.55, card_w - 0.3, card_h - 0.65,
                        card.get("desc", ""), 12, ns.INK)
+    return slide
+
+
+def render_pill_flow(prs, page):
+    slide = _content_slide(prs)
+    header_band(slide, page.get("eyebrow"), page.get("title", ""),
+                use_eyebrow=page.get("use_eyebrow", True))
+    pills = page.get("pills", [])
+    n = max(len(pills), 1)
+    pill_h = 0.5
+    conn_w = 0.35
+    top = 2.7
+    total_w = ns.CONTENT_W
+    pill_w = (total_w - conn_w * (n - 1)) / n
+    x = ns.MARGIN_L
+    cy = top + pill_h / 2
+    line_hex = ns.PURPLE
+    for i, label in enumerate(pills):
+        shape = ns.add_rounded_rect(slide, x, top, pill_w, pill_h,
+                                    fill_hex="F6F2FA", line_hex=line_hex)
+        tf = shape.text_frame
+        tf.word_wrap = True
+        run = tf.paragraphs[0].add_run()
+        run.text = label
+        ns.style_run(run, 12, ns.PURPLE_DARK, bold=True)
+        tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+        if i < n - 1:
+            ns.add_connector(slide, x + pill_w, cy, x + pill_w + conn_w, cy, line_hex)
+        x += pill_w + conn_w
+    if page.get("note"):
+        ns.add_textbox(slide, ns.MARGIN_L, top + 1.0, ns.CONTENT_W, 0.4,
+                       page["note"], 12, ns.INK)
     return slide

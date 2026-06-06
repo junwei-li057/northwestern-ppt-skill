@@ -63,7 +63,25 @@ def test_card_row_three_cards_rotating_accents(template_path):
     from pptx.enum.shapes import MSO_SHAPE_TYPE
     cards = [s for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE]
     fills = {c.fill.fore_color.rgb for c in cards}
-    assert fills == {ns.hex_to_rgb(ns.ACCENTS[i][1]) for i in range(3)}
+    # the three card fills must all be present (other shapes like the underline
+    # bar may also be filled, so check subset rather than exact equality)
+    assert {ns.hex_to_rgb(ns.ACCENTS[i][1]) for i in range(3)} <= fills
     joined = " | ".join(texts(slide))
     for word in ["A", "alpha", "B", "beta", "C", "gamma"]:
         assert word in joined
+
+
+def test_pill_flow(template_path):
+    prs = fresh(template_path)
+    page = {"type": "pill_flow", "eyebrow": "PIPELINE", "title": "Steps",
+            "pills": ["Ingest", "Bin", "Sample", "Score"], "note": "left to right"}
+    slide = components.render_pill_flow(prs, page)
+    joined = " | ".join(texts(slide))
+    for p in page["pills"]:
+        assert p in joined
+    assert "left to right" in joined
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
+    pills = [s for s in slide.shapes
+             if s.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE and s.has_text_frame
+             and s.text_frame.text.strip() in page["pills"]]
+    assert len(pills) == 4
