@@ -125,3 +125,34 @@ def render_callout(prs, page):
     ns.add_textbox(slide, ns.MARGIN_L + 0.25, box_top + 0.6, ns.CONTENT_W - 0.5, box_h - 0.75,
                    page.get("text", ""), 16, ns.INK)
     return slide
+
+
+def render_mapping(prs, page):
+    slide = _content_slide(prs)
+    header_band(slide, page.get("eyebrow"), page.get("title", ""),
+                use_eyebrow=page.get("use_eyebrow", True))
+    rows = page.get("rows", [])
+    col_gap = 0.25
+    col_w = (ns.CONTENT_W - col_gap) / 2
+    left_x = ns.MARGIN_L
+    right_x = ns.MARGIN_L + col_w + col_gap
+    top = 1.7
+    row_h = 0.5
+    row_gap = 0.12
+    # header cells
+    ns.add_rounded_rect(slide, left_x, top, col_w, 0.45, fill_hex=ns.PURPLE, line_hex=None)
+    ns.add_textbox(slide, left_x + 0.12, top + 0.06, col_w - 0.24, 0.33,
+                   page.get("left_header", ""), 12, ns.WHITE, bold=True)
+    ns.add_rounded_rect(slide, right_x, top, col_w, 0.45, fill_hex=ns.PURPLE, line_hex=None)
+    ns.add_textbox(slide, right_x + 0.12, top + 0.06, col_w - 0.24, 0.33,
+                   page.get("right_header", ""), 12, ns.WHITE, bold=True)
+    y = top + 0.45 + row_gap
+    for left_text, right_text in rows:
+        ns.add_rounded_rect(slide, left_x, y, col_w, row_h, fill_hex="F6F2FA", line_hex="E6E1EC")
+        ns.add_textbox(slide, left_x + 0.12, y + 0.09, col_w - 0.24, row_h - 0.18,
+                       left_text, 12, ns.INK)
+        ns.add_rounded_rect(slide, right_x, y, col_w, row_h, fill_hex="F6F2FA", line_hex="E6E1EC")
+        ns.add_textbox(slide, right_x + 0.12, y + 0.09, col_w - 0.24, row_h - 0.18,
+                       right_text, 12, ns.INK)
+        y += row_h + row_gap
+    return slide

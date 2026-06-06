@@ -98,3 +98,16 @@ def test_callout(template_path):
     from pptx.enum.shapes import MSO_SHAPE_TYPE
     boxes = [s for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE]
     assert any(b.fill.fore_color.rgb == ns.hex_to_rgb("F6F2FA") for b in boxes)
+
+
+def test_mapping(template_path):
+    prs = fresh(template_path)
+    page = {"type": "mapping", "eyebrow": "DIAGNOSIS", "title": "Behavior to mode",
+            "left_header": "Observed behavior", "right_header": "Attribution",
+            "rows": [["No verification", "Task verification"],
+                     ["Ignored input", "Misalignment"]]}
+    slide = components.render_mapping(prs, page)
+    joined = " | ".join(texts(slide))
+    for cell in ["Observed behavior", "Attribution", "No verification",
+                 "Task verification", "Ignored input", "Misalignment"]:
+        assert cell in joined
