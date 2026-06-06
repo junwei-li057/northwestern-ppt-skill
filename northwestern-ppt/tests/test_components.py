@@ -85,3 +85,16 @@ def test_pill_flow(template_path):
              if s.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE and s.has_text_frame
              and s.text_frame.text.strip() in page["pills"]]
     assert len(pills) == 4
+
+
+def test_callout(template_path):
+    prs = fresh(template_path)
+    page = {"type": "callout", "eyebrow": "CLAIM", "title": "The point",
+            "label": "Core claim", "text": "Process matters more than outcome."}
+    slide = components.render_callout(prs, page)
+    joined = " | ".join(texts(slide))
+    assert "Core claim" in joined
+    assert "Process matters more than outcome." in joined
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
+    boxes = [s for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.AUTO_SHAPE]
+    assert any(b.fill.fore_color.rgb == ns.hex_to_rgb("F6F2FA") for b in boxes)

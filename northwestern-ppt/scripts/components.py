@@ -110,3 +110,18 @@ def render_pill_flow(prs, page):
         ns.add_textbox(slide, ns.MARGIN_L, top + 1.0, ns.CONTENT_W, 0.4,
                        page["note"], 12, ns.INK)
     return slide
+
+
+def render_callout(prs, page):
+    slide = _content_slide(prs)
+    header_band(slide, page.get("eyebrow"), page.get("title", ""),
+                use_eyebrow=page.get("use_eyebrow", True))
+    box_top = 2.6
+    box_h = 1.5
+    ns.add_rounded_rect(slide, ns.MARGIN_L, box_top, ns.CONTENT_W, box_h,
+                        fill_hex="F6F2FA", line_hex=ns.PURPLE)
+    ns.add_textbox(slide, ns.MARGIN_L + 0.25, box_top + 0.18, ns.CONTENT_W - 0.5, 0.35,
+                   page.get("label", ""), 11, ns.PURPLE, bold=True)
+    ns.add_textbox(slide, ns.MARGIN_L + 0.25, box_top + 0.6, ns.CONTENT_W - 0.5, box_h - 0.75,
+                   page.get("text", ""), 16, ns.INK)
+    return slide
