@@ -6,3 +6,7 @@ work/
 .superpowers/
 *_northwestern.pptx
 northwestern-ppt/tests/_out/
+
+# excluded from publish (kept locally)
+northwestern-ppt/references/
+northwestern-ppt/tests/fixtures/
