@@ -156,3 +156,50 @@ def render_mapping(prs, page):
                        right_text, 12, ns.INK)
         y += row_h + row_gap
     return slide
+
+
+def render_figure(prs, page):
+    slide = _content_slide(prs)
+    header_band(slide, page.get("eyebrow"), page.get("title", ""),
+                use_eyebrow=page.get("use_eyebrow", True))
+    has_cards = bool(page.get("cards"))
+    img_left = ns.MARGIN_L
+    img_top = 1.6
+    img_max_w = (ns.CONTENT_W - 0.4) * (0.62 if has_cards else 1.0)
+    img_max_h = 3.0
+    _add_scaled_picture(slide, page["image"], img_left, img_top, img_max_w, img_max_h)
+    if page.get("caption"):
+        ns.add_textbox(slide, img_left, img_top + img_max_h + 0.1, img_max_w, 0.4,
+                       page["caption"], 12, ns.INK)
+    if has_cards:
+        card_left = ns.MARGIN_L + img_max_w + 0.4
+        card_w = ns.CONTENT_W - img_max_w - 0.4
+        y = img_top
+        for i, card in enumerate(page["cards"][:3]):
+            line_hex, fill_hex = ns.ACCENTS[i % len(ns.ACCENTS)]
+            ch = 0.95
+            ns.add_rounded_rect(slide, card_left, y, card_w, ch, fill_hex=fill_hex, line_hex=line_hex)
+            ns.add_textbox(slide, card_left + 0.12, y + 0.1, card_w - 0.24, 0.3,
+                           card.get("title", ""), 13, line_hex, bold=True)
+            ns.add_textbox(slide, card_left + 0.12, y + 0.42, card_w - 0.24, ch - 0.5,
+                           card.get("desc", ""), 11, ns.INK)
+            y += ch + 0.2
+    return slide
+
+
+def _add_scaled_picture(slide, image_path, left, top, max_w, max_h):
+    """Place an image scaled to fit within (max_w, max_h) inches, preserving aspect."""
+    from PIL import Image
+    try:
+        with Image.open(image_path) as im:
+            iw, ih = im.size
+    except Exception:
+        iw, ih = 4, 3
+    aspect = iw / ih if ih else 4 / 3
+    w = max_w
+    h = w / aspect
+    if h > max_h:
+        h = max_h
+        w = h * aspect
+    return slide.shapes.add_picture(image_path, ns.Inches(left), ns.Inches(top),
+                                    ns.Inches(w), ns.Inches(h))

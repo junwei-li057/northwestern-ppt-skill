@@ -111,3 +111,28 @@ def test_mapping(template_path):
     for cell in ["Observed behavior", "Attribution", "No verification",
                  "Task verification", "Ignored input", "Misalignment"]:
         assert cell in joined
+
+
+def _make_png(path):
+    try:
+        from PIL import Image
+        Image.new("RGB", (400, 300), "white").save(path)
+    except Exception:
+        import base64
+        data = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC")
+        with open(path, "wb") as f:
+            f.write(data)
+
+
+def test_figure_places_image_and_caption(template_path, tmp_path):
+    img = tmp_path / "fig1.png"
+    _make_png(str(img))
+    prs = fresh(template_path)
+    page = {"type": "figure", "eyebrow": "RESULTS", "title": "Main result",
+            "image": str(img), "caption": "Accuracy improves with more bins."}
+    slide = components.render_figure(prs, page)
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
+    pics = [s for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.PICTURE]
+    assert len(pics) == 1
+    assert "Accuracy improves with more bins." in " | ".join(texts(slide))
