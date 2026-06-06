@@ -13,7 +13,8 @@ colors/sizes (see `scripts/nwstyle.py`); this file owns *content* decisions.
 - **Stable frame** (every slide): title; slide number; branded canvas; optional
   eyebrow + purple underline (on/off as a set via `use_eyebrow`).
 - **Body menu** (pick per slide to create variety): bullets, card_row, pill_flow,
-  callout, mapping, figure.
+  callout, mapping, table, figure. Each component is sized to fill the slide — keep
+  content substantial so pages don't read empty (a few words floating is a smell).
 
 ## Length = duration-driven
 - Ask target duration first. Pages ≈ `round(minutes * 0.7)`.
@@ -32,5 +33,6 @@ colors/sizes (see `scripts/nwstyle.py`); this file owns *content* decisions.
 - 2–3 parallel concepts/metrics → `card_row`.
 - Ordered steps/pipeline → `pill_flow`.
 - Core claim / one-line takeaway → `callout`.
-- Left-right correspondence / number comparison → `mapping`.
+- Left-right correspondence (behavior → cause) → `mapping`.
+- Tabular or numeric data (≥2 columns, e.g. a results/KPI table) → `table`.
 - A paper figure to show → `figure`.

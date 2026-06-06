@@ -31,6 +31,7 @@ RENDERERS = {
     "pill_flow": components.render_pill_flow,
     "callout": components.render_callout,
     "mapping": components.render_mapping,
+    "table": components.render_table,
     "figure": components.render_figure,
 }
 

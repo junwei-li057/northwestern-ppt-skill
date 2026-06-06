@@ -38,7 +38,8 @@ Slide types and fields:
 - `card_row`: eyebrow, title, cards[{title,desc}]   (2–3 cards)
 - `pill_flow`: eyebrow, title, pills[], note?
 - `callout`: eyebrow, title, label, text
-- `mapping`: eyebrow, title, left_header, right_header, rows[[l,r]]
+- `mapping`: eyebrow, title, left_header, right_header, rows[[l,r]]   (two-column correspondence, e.g. behavior → cause)
+- `table`: eyebrow, title, headers[], rows[[...]]   (a real table for tabular/numeric data, any column count)
 - `figure`: eyebrow, title, image (path from figures.json), caption?, cards?[{title,desc}]
 - `thanks`: title (default "Thanks!")
 

@@ -100,6 +100,21 @@ def test_callout(template_path):
     assert any(b.fill.fore_color.rgb == ns.hex_to_rgb("F6F2FA") for b in boxes)
 
 
+def test_table(template_path):
+    prs = fresh(template_path)
+    page = {"type": "table", "eyebrow": "RESULTS", "title": "Per-agent KPIs",
+            "headers": ["Agent", "Milestone KPI"],
+            "rows": [["Text Analyst", "0.316"], ["Advocate", "0.263"]]}
+    slide = components.render_table(prs, page)
+    tables = [s for s in slide.shapes if s.has_table]
+    assert len(tables) == 1
+    t = tables[0].table
+    assert len(t.rows) == 3 and len(t.columns) == 2
+    assert t.cell(0, 0).text == "Agent"
+    assert t.cell(1, 1).text == "0.316"
+    assert t.cell(0, 0).fill.fore_color.rgb == ns.hex_to_rgb(ns.PURPLE)
+
+
 def test_mapping(template_path):
     prs = fresh(template_path)
     page = {"type": "mapping", "eyebrow": "DIAGNOSIS", "title": "Behavior to mode",
