@@ -166,10 +166,13 @@ def render_figure(prs, page):
     img_left = ns.MARGIN_L
     img_top = 1.6
     img_max_w = (ns.CONTENT_W - 0.4) * (0.62 if has_cards else 1.0)
-    img_max_h = 3.0
-    _add_scaled_picture(slide, page["image"], img_left, img_top, img_max_w, img_max_h)
+    img_max_h = 3.2
+    # top-align the trimmed image; horizontally center it when it has the whole
+    # width to itself so wide/narrow figures sit balanced under the title
+    _pic, img_h = _add_scaled_picture(slide, page["image"], img_left, img_top,
+                                      img_max_w, img_max_h, center=not has_cards)
     if page.get("caption"):
-        ns.add_textbox(slide, img_left, img_top + img_max_h + 0.1, img_max_w, 0.4,
+        ns.add_textbox(slide, img_left, img_top + img_h + 0.12, img_max_w, 0.4,
                        page["caption"], 12, ns.INK)
     if has_cards:
         card_left = ns.MARGIN_L + img_max_w + 0.4
@@ -187,12 +190,25 @@ def render_figure(prs, page):
     return slide
 
 
-def _add_scaled_picture(slide, image_path, left, top, max_w, max_h):
-    """Place an image scaled to fit within (max_w, max_h) inches, preserving aspect."""
-    from PIL import Image
+def _add_scaled_picture(slide, image_path, left, top, max_w, max_h, center=False):
+    """Place an image scaled to fit within (max_w, max_h) inches, preserving aspect.
+
+    White margins are auto-trimmed first (figures cropped from a PDF often carry
+    whitespace). When center=True the scaled image is centered horizontally within
+    max_w. Returns (picture_shape, placed_height_inches)."""
+    import io
+    from PIL import Image, ImageChops
+    src = image_path
     try:
-        with Image.open(image_path) as im:
-            iw, ih = im.size
+        im = Image.open(image_path).convert("RGB")
+        bbox = ImageChops.difference(im, Image.new("RGB", im.size, (255, 255, 255))).getbbox()
+        if bbox:
+            im = im.crop(bbox)
+        iw, ih = im.size
+        buf = io.BytesIO()
+        im.save(buf, format="PNG")
+        buf.seek(0)
+        src = buf
     except Exception:
         iw, ih = 4, 3
     aspect = iw / ih if ih else 4 / 3
@@ -201,5 +217,8 @@ def _add_scaled_picture(slide, image_path, left, top, max_w, max_h):
     if h > max_h:
         h = max_h
         w = h * aspect
-    return slide.shapes.add_picture(image_path, ns.Inches(left), ns.Inches(top),
-                                    ns.Inches(w), ns.Inches(h))
+    if center:
+        left = left + (max_w - w) / 2
+    pic = slide.shapes.add_picture(src, ns.Inches(left), ns.Inches(top),
+                                   ns.Inches(w), ns.Inches(h))
+    return pic, h
